@@ -4,6 +4,8 @@ This project detects and highlights visual changes between two images of the sam
 It uses a hybrid approach combining **SSIM (Structural Similarity Index)** and **pixel-wise absolute difference**, followed by **adaptive thresholding** and **morphological operations** to localize meaningful changes and ignore noise.
 
 ---
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/75b3fae2-8bfb-4df6-91ea-8d386ce8ee61" />
+
 
 ## 🚀 Features
 - Detects structural and pixel-level changes between two images
