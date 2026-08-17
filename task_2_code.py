@@ -44,25 +44,27 @@ def detect_changes(before, after):
 
 
 # ----------- Main Loop -----------
+supported_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG')
 files = sorted(os.listdir(INPUT))
-before_files = [f for f in files if f.endswith(".jpg") and "~2" not in f]
 
-for bf in before_files:
-    base = bf[:-4]
-    before_path = os.path.join(INPUT, f"{base}.jpg")
-    after_path  = os.path.join(INPUT, f"{base}~2.jpg")
+for f in files:
+    if f.endswith(supported_extensions) and "~2" not in f:
+        base, ext = os.path.splitext(f)
+        before_path = os.path.join(INPUT, f)
+        after_path  = os.path.join(INPUT, f"{base}~2{ext}")
 
-    if not os.path.exists(after_path):
-        print(f"[SKIP] No after-image for {base}")
-        continue
+        if not os.path.exists(after_path):
+            print(f"[SKIP] No after-image for {base}")
+            continue
 
-    before = cv2.imread(before_path)
-    after  = cv2.imread(after_path)
+        before = cv2.imread(before_path)
+        after  = cv2.imread(after_path)
 
-    annotated = detect_changes(before, after)
+        annotated = detect_changes(before, after)
 
-    # Save exactly as assignment requires:
-    cv2.imwrite(os.path.join(task_2_output, f"{base}.jpg"), before)
-    cv2.imwrite(os.path.join(task_2_output, f"{base}~3.jpg"), annotated)
+        # Save exactly as assignment requires (preserving extension):
+        cv2.imwrite(os.path.join(task_2_output, f"{base}{ext}"), before)
+        cv2.imwrite(os.path.join(task_2_output, f"{base}~3{ext}"), annotated)
 
-    print(f"[DONE] {base}")
+        print(f"[DONE] {base}")
+
