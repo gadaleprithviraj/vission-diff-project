@@ -104,7 +104,7 @@ task_2_output/
 
 🧑‍💻 Author
 
-Developed by Sumit Gomes
+Developed by Prithviraj Gadale
 Final Year Project / Computer Vision Assignment
 
 📜 License
