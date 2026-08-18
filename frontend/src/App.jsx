@@ -1,0 +1,162 @@
+import React, { useState } from 'react';
+import './index.css';
+
+function App() {
+  const [beforeFile, setBeforeFile] = useState(null);
+  const [afterFile, setAfterFile] = useState(null);
+  const [beforePreview, setBeforePreview] = useState(null);
+  const [afterPreview, setAfterPreview] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [progressStep, setProgressStep] = useState(0);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
+
+  const steps = [
+    'Preprocessing',
+    'Computing image differences',
+    'Detecting changed regions',
+    'Generating result',
+  ];
+
+  const handleFileChange = (e, setFile, setPreview) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeFile = (setterFile, setterPreview) => {
+    setterFile(null);
+    setterPreview(null);
+  };
+
+  const analyze = async () => {
+    setError('');
+    setProcessing(true);
+    setProgressStep(0);
+    setResult(null);
+    const form = new FormData();
+    form.append('before_image', beforeFile);
+    form.append('after_image', afterFile);
+    try {
+      const response = await fetch('/api/detect-changes', {
+        method: 'POST',
+        body: form,
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail || 'Server error');
+      }
+      // Simulate progress for UI friendliness
+      for (let i = 0; i < steps.length; i++) {
+        setProgressStep(i + 1);
+        await new Promise(r => setTimeout(r, 500));
+      }
+      const data = await response.json();
+      setResult(data.results);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setProcessing(false);
+      setProgressStep(0);
+    }
+  };
+
+  const [activeTab, setActiveTab] = useState('Before');
+  const renderImage = (base64) => (
+    <img src={`data:image/jpeg;base64,${base64}`} alt="result" className="result-img" />
+  );
+
+  return (
+    <div className="container">
+      <h1>SiteVision – Image Change Detection</h1>
+      <p className="subtitle">Upload two images of the same scene to identify visual changes.</p>
+      <div className="upload-section">
+        <div className="upload-box">
+          <label>BEFORE</label>
+          {beforePreview ? (
+            <div className="preview">
+              <img src={beforePreview} alt="Before preview" />
+              <button onClick={() => removeFile(setBeforeFile, setBeforePreview)} className="remove-btn">✕</button>
+            </div>
+          ) : (
+            <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, setBeforeFile, setBeforePreview)} />
+          )}
+        </div>
+        <div className="upload-box">
+          <label>AFTER</label>
+          {afterPreview ? (
+            <div className="preview">
+              <img src={afterPreview} alt="After preview" />
+              <button onClick={() => removeFile(setAfterFile, setAfterPreview)} className="remove-btn">✕</button>
+            </div>
+          ) : (
+            <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, setAfterFile, setAfterPreview)} />
+          )}
+        </div>
+      </div>
+      <button
+        className="analyze-btn"
+        disabled={!beforeFile || !afterFile || processing}
+        onClick={analyze}
+      >
+        {processing ? 'Analyzing…' : 'Analyze Changes'}
+      </button>
+      {processing && (
+        <div className="progress-box">
+          <p>Running OpenCV image-processing pipeline...</p>
+          <ol>
+            {steps.map((s, i) => (
+              <li key={i} className={i < progressStep ? 'done' : ''}>{s}</li>
+            ))}
+          </ol>
+        </div>
+      )}
+      {error && <div className="error-msg">Error: {error}</div>}
+      {result && (
+        <div className="result-section">
+          <h2>Results</h2>
+          <div className="tabs">
+            {['Before', 'After', 'Difference', 'Detected Changes'].map((tab) => (
+              <button
+                key={tab}
+                className={activeTab === tab ? 'active' : ''}
+                onClick={() => setActiveTab(tab)}
+              >{tab}</button>
+            ))}
+          </div>
+          <div className="image-display">
+            {activeTab === 'Before' && renderImage(result.before_image)}
+            {activeTab === 'After' && renderImage(result.after_image)}
+            {activeTab === 'Difference' && renderImage(result.difference_image)}
+            {activeTab === 'Detected Changes' && renderImage(result.detected_changes)}
+          </div>
+          <div className="info-box">
+            <p>Detected Regions: {result.number_of_regions}</p>
+            {result.change_regions.slice(0, 5).map((r, i) => (
+              <div key={i} className="region-info">
+                Region {i + 1}: x={r.x}, y={r.y}, w={r.width}, h={r.height}
+              </div>
+            ))}
+          </div>
+          <button
+            className="download-btn"
+            onClick={() => {
+              const link = document.createElement('a');
+              link.href = `data:image/jpeg;base64,${result.detected_changes}`;
+              link.download = 'detected_changes.jpg';
+              link.click();
+            }}
+          >Download Result</button>
+        </div>
+      )}
+      <div className="limitation-box">
+        <p>Best results are obtained when both images show the same scene from a similar viewpoint. Camera movement, rotation, scale changes, and lighting differences can produce false detections.</p>
+        <p>Future improvement: feature‑based image registration using ORB/SIFT and homography.</p>
+      </div>
+    </div>
+  );
+}
+
+export default App;

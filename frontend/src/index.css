@@ -1,0 +1,195 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+  --primary: hsl(210, 60%, 55%);
+  --bg: hsl(210, 30%, 10%);
+  --card-bg: rgba(255, 255, 255, 0.07);
+  --card-blur: 12px;
+  --text: #e0e0e0;
+  --accent: hsl(45, 90%, 55%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, hsl(210, 30%, 12%), hsl(210, 20%, 8%));
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+.container {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--card-blur));
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 960px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+h1 {
+  font-size: 2.2rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  margin-bottom: 1.5rem;
+  opacity: 0.85;
+}
+
+.upload-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.upload-box {
+  flex: 1;
+  border: 2px dashed var(--accent);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  background: rgba(255,255,255,0.02);
+  transition: border-color 0.3s;
+}
+
+.upload-box:hover {
+  border-color: var(--primary);
+}
+
+.upload-box label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.preview img {
+  max-width: 100%;
+  max-height: 180px;
+  border-radius: 0.5rem;
+}
+
+.remove-btn {
+  background: rgba(255,0,0,0.6);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  margin-top: -28px;
+  margin-left: 4px;
+}
+
+.analyze-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 1rem;
+  transition: background 0.3s;
+}
+
+.analyze-btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.analyze-btn:not(:disabled):hover {
+  background: hsl(210, 60%, 45%);
+}
+
+.progress-box {
+  margin-top: 1rem;
+  background: rgba(255,255,255,0.05);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.progress-box ol {
+  padding-left: 1.2rem;
+}
+
+.progress-box li.done {
+  color: var(--accent);
+}
+
+.error-msg {
+  margin-top: 1rem;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.result-section {
+  margin-top: 2rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 0.5rem;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 0.4rem;
+  transition: background 0.2s;
+}
+
+.tabs button.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.image-display img.result-img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.info-box {
+  margin-top: 1rem;
+  background: rgba(255,255,255,0.04);
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.download-btn {
+  margin-top: 1rem;
+  background: var(--accent);
+  border: none;
+  color: #000;
+  padding: 0.6rem 1rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+
+.limitation-box {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
+  line-height: 1.4;
+}

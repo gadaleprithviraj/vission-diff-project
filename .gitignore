@@ -1,1 +1,10 @@
-__pycache__/\n*.pyc\nenv/\nvenv/\n.env\nnode_modules/\ndist/\nbuild/\n
+node_modules/
+ dist/
+ .vite/
+ .vscode/
+ venv/
+ __pycache__/
+ input/*.jpg
+ input/*.png
+ .DS_Store
+ Thumbs.db

@@ -107,6 +107,4 @@ task_2_output/
 Developed by Prithviraj Gadale
 Final Year Project / Computer Vision Assignment
 
-📜 License
 
-This project is licensed under the MIT License.
