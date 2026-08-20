@@ -11,6 +11,12 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
+  const trialPairs = [
+    { id: 1, label: 'Construction site', before: '/trials/before-1.jpg', after: '/trials/after-1.jpg' },
+    { id: 2, label: 'Mountain road', before: '/trials/before-2.jpg', after: '/trials/after-2.jpg' },
+    { id: 3, label: 'City street', before: '/trials/before-3.jpg', after: '/trials/after-3.jpg' },
+  ];
+
   const steps = [
     'Preprocessing',
     'Computing image differences',
@@ -31,15 +37,35 @@ function App() {
     setterPreview(null);
   };
 
+  const loadTrialPair = async (trial) => {
+    const responses = await Promise.all([fetch(trial.before), fetch(trial.after)]);
+    if (responses.some(response => !response.ok)) throw new Error('Trial images could not be loaded.');
+    const blobs = await Promise.all(responses.map(response => response.blob()));
+    setBeforeFile(new File([blobs[0]], `before-${trial.id}.jpg`, { type: blobs[0].type }));
+    setAfterFile(new File([blobs[1]], `after-${trial.id}.jpg`, { type: blobs[1].type }));
+    setBeforePreview(trial.before);
+    setAfterPreview(trial.after);
+    setError('');
+  };
+
   const analyze = async () => {
     setError('');
     setProcessing(true);
     setProgressStep(0);
     setResult(null);
-    const form = new FormData();
-    form.append('before_image', beforeFile);
-    form.append('after_image', afterFile);
     try {
+      let selectedBefore = beforeFile;
+      let selectedAfter = afterFile;
+      if (!selectedBefore || !selectedAfter) {
+        await loadTrialPair(trialPairs[0]);
+        const responses = await Promise.all([fetch(trialPairs[0].before), fetch(trialPairs[0].after)]);
+        const blobs = await Promise.all(responses.map(response => response.blob()));
+        selectedBefore = new File([blobs[0]], 'before-trial.jpg', { type: blobs[0].type });
+        selectedAfter = new File([blobs[1]], 'after-trial.jpg', { type: blobs[1].type });
+      }
+      const form = new FormData();
+      form.append('before_image', selectedBefore);
+      form.append('after_image', selectedAfter);
       const response = await fetch('/api/detect-changes', {
         method: 'POST',
         body: form,
@@ -72,6 +98,25 @@ function App() {
     <div className="container">
       <h1>SiteVision – Image Change Detection</h1>
       <p className="subtitle">Upload two images of the same scene to identify visual changes.</p>
+      <section className="showcase" aria-label="Featured before and after example">
+        <div className="section-kicker">Featured example · always ready to explore</div>
+        <div className="showcase-grid">
+          <figure><img src={trialPairs[0].before} alt="Featured before" /><figcaption>Before</figcaption></figure>
+          <div className="showcase-arrow" aria-hidden="true">→</div>
+          <figure><img src={trialPairs[0].after} alt="Featured after" /><figcaption>After</figcaption></figure>
+        </div>
+      </section>
+      <section className="trial-section">
+        <div><h2>Try a sample pair</h2><p>Choose a prepared scene, or upload your own images below.</p></div>
+        <div className="trial-grid">
+          {trialPairs.map((trial) => (
+            <button className="trial-card" key={trial.id} onClick={() => loadTrialPair(trial)} type="button">
+              <span className="trial-thumbnails"><img src={trial.before} alt="" /><img src={trial.after} alt="" /></span>
+              <span>{trial.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
       <div className="upload-section">
         <div className="upload-box">
           <label>BEFORE</label>
@@ -98,7 +143,7 @@ function App() {
       </div>
       <button
         className="analyze-btn"
-        disabled={!beforeFile || !afterFile || processing}
+        disabled={processing}
         onClick={analyze}
       >
         {processing ? 'Analyzing…' : 'Analyze Changes'}
