@@ -3,15 +3,23 @@ import base64
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 # Import the wrapper that runs the original algorithm
 from .change_detection import process_images
 
 app = FastAPI(title="SiteVision Change Detection API")
 
+FRONTEND_DIR = Path(__file__).resolve().parents[1] / "frontend" / "dist"
+
+if FRONTEND_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIR / "assets"), name="assets")
+
 @app.get("/")
 async def root():
+    if (FRONTEND_DIR / "index.html").exists():
+        return FileResponse(FRONTEND_DIR / "index.html")
     return {
         "message": "SiteVision Change Detection API is running",
         "docs": "/docs",
