@@ -4,10 +4,12 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Import the original algorithm from the project root
+# Import the original algorithm from the project root.
+# In a serverless deployment the working directory is not guaranteed to be the repo root,
+# so we must insert the actual project root at the front of the import path.
 import sys
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.append(str(PROJECT_ROOT))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 from task_2_code import detect_changes as original_detect_changes
 
 def process_images(before_path: str, after_path: str) -> Dict[str, Any]:
