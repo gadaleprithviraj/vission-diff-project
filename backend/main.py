@@ -15,6 +15,7 @@ FRONTEND_DIR = Path(__file__).resolve().parents[1] / "frontend" / "dist"
 
 if FRONTEND_DIR.exists():
     app.mount("/assets", StaticFiles(directory=FRONTEND_DIR / "assets"), name="assets")
+    app.mount("/trials", StaticFiles(directory=FRONTEND_DIR / "trials"), name="trials")
 
 @app.get("/")
 async def root():
