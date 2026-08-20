@@ -5,7 +5,6 @@ from skimage.metrics import structural_similarity as ssim
 
 INPUT = "input"
 task_2_output = "task_2_output"
-os.makedirs(task_2_output, exist_ok=True)
 
 def detect_changes(before, after):
     # Grayscale
@@ -35,36 +34,48 @@ def detect_changes(before, after):
     annotated = after.copy()
 
     for c in cnts:
-        if cv2.contourArea(c) < 400: 
+        if cv2.contourArea(c) < 400:
             continue
-        x,y,w,h = cv2.boundingRect(c)
-        cv2.rectangle(annotated, (x,y), (x+w, y+h), (0,0,255), 3)
+        x, y, w, h = cv2.boundingRect(c)
+        cv2.rectangle(annotated, (x, y), (x + w, y + h), (0, 0, 255), 3)
 
     return annotated
 
 
-# ----------- Main Loop -----------
-supported_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG')
-files = sorted(os.listdir(INPUT))
+def main():
+    os.makedirs(task_2_output, exist_ok=True)
+    supported_extensions = ('.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG')
 
-for f in files:
-    if f.endswith(supported_extensions) and "~2" not in f:
-        base, ext = os.path.splitext(f)
-        before_path = os.path.join(INPUT, f)
-        after_path  = os.path.join(INPUT, f"{base}~2{ext}")
+    if not os.path.isdir(INPUT):
+        print(f"[SKIP] Input directory '{INPUT}' does not exist.")
+        return
 
-        if not os.path.exists(after_path):
-            print(f"[SKIP] No after-image for {base}")
-            continue
+    files = sorted(os.listdir(INPUT))
+    for f in files:
+        if f.endswith(supported_extensions) and "~2" not in f:
+            base, ext = os.path.splitext(f)
+            before_path = os.path.join(INPUT, f)
+            after_path = os.path.join(INPUT, f"{base}~2{ext}")
 
-        before = cv2.imread(before_path)
-        after  = cv2.imread(after_path)
+            if not os.path.exists(after_path):
+                print(f"[SKIP] No after-image for {base}")
+                continue
 
-        annotated = detect_changes(before, after)
+            before = cv2.imread(before_path)
+            after = cv2.imread(after_path)
 
-        # Save exactly as assignment requires (preserving extension):
-        cv2.imwrite(os.path.join(task_2_output, f"{base}{ext}"), before)
-        cv2.imwrite(os.path.join(task_2_output, f"{base}~3{ext}"), annotated)
+            if before is None or after is None:
+                print(f"[SKIP] Could not read images for {base}")
+                continue
 
-        print(f"[DONE] {base}")
+            annotated = detect_changes(before, after)
+
+            cv2.imwrite(os.path.join(task_2_output, f"{base}{ext}"), before)
+            cv2.imwrite(os.path.join(task_2_output, f"{base}~3{ext}"), annotated)
+
+            print(f"[DONE] {base}")
+
+
+if __name__ == "__main__":
+    main()
 

@@ -1,4 +1,6 @@
-required Before Run [Image Change Detection using SSIM & OpenCV (Python)]
-1.) opencv-python
-2.) numpy
-3.) scikit-image
+fastapi
+uvicorn[standard]
+python-multipart
+opencv-python-headless
+numpy
+scikit-image
