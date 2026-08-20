@@ -10,6 +10,18 @@ from .change_detection import process_images
 
 app = FastAPI(title="SiteVision Change Detection API")
 
+@app.get("/")
+async def root():
+    return {
+        "message": "SiteVision Change Detection API is running",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 # CORS configuration for local development
 app.add_middleware(
     CORSMiddleware,
